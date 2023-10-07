@@ -16,7 +16,6 @@ import java.beans.PropertyChangeListener;
 public class SignupView extends JPanel implements ActionListener, PropertyChangeListener {
     public final String viewName = "sign up";
 
-    private final SignupViewModel signupViewModel;
     private final JTextField usernameInputField = new JTextField(15);
     private final JPasswordField passwordInputField = new JPasswordField(15);
     private final JPasswordField repeatPasswordInputField = new JPasswordField(15);
@@ -28,7 +27,6 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
     public SignupView(SignupController controller, SignupViewModel signupViewModel) {
 
         this.signupController = controller;
-        this.signupViewModel = signupViewModel;
         signupViewModel.addPropertyChangeListener(this);
 
         JLabel title = new JLabel(signupViewModel.TITLE_LABEL);
@@ -52,9 +50,8 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
                 new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
                         if (evt.getSource().equals(signUp)) {
-                            signupController.execute(usernameInputField.getText(),
-                                    String.valueOf(passwordInputField.getPassword()),
-                                    String.valueOf(repeatPasswordInputField.getPassword()));
+                            SignupState state = signupViewModel.getState();
+                            signupController.execute(state.getUsername(), state.getPassword(), state.getPassword());
                         }
                     }
                 }
@@ -66,9 +63,10 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
         //
         // Notice how it has access to instance variables in the enclosing class!
         usernameInputField.addKeyListener(
-                new KeyListener() {
+                new KeyListener() { // creates an anonymous subclass of KeyListener and instantiates it
                     @Override
-                    public void keyTyped(KeyEvent e) {
+                    public void keyTyped(KeyEvent e) { //Method keyTyped is called every time the user types a letter
+                        //  keyTyped updates the SignupState object used by the SignupViewModel.
                         SignupState currentState = signupViewModel.getState();
                         currentState.setUsername(usernameInputField.getText() + e.getKeyChar());
                         signupViewModel.setState(currentState);
@@ -82,6 +80,45 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
                     public void keyReleased(KeyEvent e) {
                     }
                 });
+
+        passwordInputField.addKeyListener(
+                new KeyListener() { // creates an anonymous subclass of KeyListener and instantiates it
+                    @Override
+                    public void keyTyped(KeyEvent e) { //Method keyTyped is called every time the user types a letter
+                        //  keyTyped updates the SignupState object used by the SignupViewModel.
+                        SignupState currentState = signupViewModel.getState();
+                        currentState.setPassword(new String (passwordInputField.getPassword()) + e.getKeyChar());
+                        signupViewModel.setState(currentState);
+                    }
+
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                    }
+
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                    }
+                });
+
+        repeatPasswordInputField.addKeyListener(
+                new KeyListener() { // creates an anonymous subclass of KeyListener and instantiates it
+                    @Override
+                    public void keyTyped(KeyEvent e) { //Method keyTyped is called every time the user types a letter
+                        //  keyTyped updates the SignupState object used by the SignupViewModel.
+                        SignupState currentState = signupViewModel.getState();
+                        currentState.setRepeatPassword(new String (repeatPasswordInputField.getPassword()) + e.getKeyChar());
+                        signupViewModel.setState(currentState);
+                    }
+
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                    }
+
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                    }
+                });
+
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         this.add(title);
